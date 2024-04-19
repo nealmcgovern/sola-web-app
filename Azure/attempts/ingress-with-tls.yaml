@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/add-base-url: "true"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.azure.com/tls-cert-keyvault-uri: https://sensolockkv.vault.azure.net/certificates/sensolocktlsdev/1a0743a980224ce384984b7af17ee2d6
+spec:
+  ingressClassName: webapprouting.kubernetes.azure.com
+  rules:
+  - host: sensolock.nealtesting.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 3000
+      - path: /frontend(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 3000
+      - path: /auth-service(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-server
+            port:
+              number: 3080
+  tls:
+    - hosts:
+      - sensolock.nealtesting.com
+      secretName: keyvault-minimal-ingress

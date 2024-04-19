@@ -1,0 +1,9 @@
+services:
+  auth-server:
+    image: sensolockacrdev.azurecr.io/auth-server-dev:latest
+    ports:
+      - "3080:3080"
+  frontend:
+    image: sensolockacrdev.azurecr.io/frontend-dev:latest
+    ports:
+      - "3000:3000"

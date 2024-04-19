@@ -1,0 +1,104 @@
+az network public-ip create -n sensolockpipdev -g SensolockDev --allocation-method Static --sku Standard
+az network vnet create -n sensolockvnetdev -g SensolockDev --address-prefix 10.0.0.0/16 --subnet-name sensolocksubnetdev --subnet-prefix 10.0.0.0/24 
+az network application-gateway create -n sensolockagdev -g SensolockDev --sku Standard_v2 --public-ip-address sensolockpipdev --vnet-name sensolockvnetdev --subnet sensolocksubnetdev --priority 100
+
+
+
+appgwId=$(az network application-gateway show -n sensolockagdev -g SensolockDev -o tsv --query "id") 
+az aks enable-addons -n sensolockaksdev -g SensolockDev -a ingress-appgw --appgw-id /subscriptions/80e3bb0e-0986-4d1e-a252-c83d5cf2c41a/resourceGroups/SensolockDev/providers/Microsoft.Network/applicationGateways/sensolockagdev
+
+
+set nodeResourceGroup=$(az aks show -n sensolockaksdev -g SensolockDev -o tsv --query "nodeResourceGroup")
+aksVnetName=$(az network vnet list -g MC_SensolockDev_sensolockaksdev_eastus -o tsv --query "[0].name")
+
+set aksVnetId=$(az network vnet show -n aks-vnet-23941303 -g MC_SensolockDev_sensolockaksdev_eastus -o tsv --query "id")
+az network vnet peering create -n AppGWtoAKSVnetPeering -g SensolockDev --vnet-name sensolockvnetdev --remote-vnet /subscriptions/80e3bb0e-0986-4d1e-a252-c83d5cf2c41a/resourceGroups/MC_SensolockDev_sensolockaksdev_eastus/providers/Microsoft.Network/virtualNetworks/aks-vnet-23941303 --allow-vnet-access
+
+set appGWVnetId=$(az network vnet show -n sensolockvnetdev -g SensolockDev -o tsv --query "id")
+az network vnet peering create -n AKStoAppGWVnetPeering -g MC_SensolockDev_sensolockaksdev_eastus --vnet-name aks-vnet-23941303 --remote-vnet /subscriptions/80e3bb0e-0986-4d1e-a252-c83d5cf2c41a/resourceGroups/SensolockDev/providers/Microsoft.Network/virtualNetworks/sensolockvnetdev --allow-vnet-access
+
+
+
+helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz --set controller.service.externalTrafficPolicy=Local
+
+helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz --set controller.service.externalTrafficPolicy=Local --set controller.service.loadBalancerIP=52.168.17.175
+
+
+
+apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: www.example.com
+        http:
+          paths:
+            - pathType: Prefix
+              backend:
+                service:
+                  name: exampleService
+                  port:
+                    number: 80
+              path: /
+    # This section is only required if TLS is to be enabled for the Ingress
+    tls:
+      - hosts:
+        - www.example.com
+        secretName: example-tls
+
+# If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
+
+apiVersion: v1
+  kind: Secret
+  metadata:
+    name: example-tls
+    namespace: foo
+  data:
+    tls.crt: <base64 encoded cert>
+    tls.key: <base64 encoded key>
+  type: kubernetes.io/tls
+
+
+az keyvault create -g SensolockDev -l eastus -n sensolockkv --enable-rbac-authorization true
+
+openssl req -new -x509 -nodes -out aks-ingress-tls.crt -keyout aks-ingress-tls.key -subj "/CN=sensolock.nealtesting.com" -addext "subjectAltName=DNS:sensolock.nealtesting.com"
+
+openssl pkcs12 -export -in aks-ingress-tls.crt -inkey aks-ingress-tls.key -out aks-ingress-tls.pfx
+
+az keyvault certificate import --vault-name sensolockkv -n sensolocktlsdev -f aks-ingress-tls.pfx
+
+az aks approuting update -g SensolockDev -n sensolockaksdev --enable-kv --attach-kv /subscriptions/80e3bb0e-0986-4d1e-a252-c83d5cf2c41a/resourceGroups/SensolockDev/providers/Microsoft.KeyVault/vaults/sensolockkv
+
+az network dns zone create -g SensolockDev -n sensolock.nealtesting.com
+
+az network dns zone show -g SensolockDev -n sensolock.nealtesting.com --query "id" --output tsv
+
+az aks approuting zone add -g SensolockDev -n sensolockaksdev --ids=/subscriptions/80e3bb0e-0986-4d1e-a252-c83d5cf2c41a/resourceGroups/sensolockdev/providers/Microsoft.Network/dnszones/sensolock.nealtesting.com --attach-zones
+
+az keyvault certificate show --vault-name sensolockkv -n sensolocktlsdev --query "id" --output tsv
+
+
+
+az network vnet create --name myVNet --resource-group SensolockDev --location eastus --address-prefix 10.21.0.0/16 --subnet-name myAGSubnet --subnet-prefix 10.21.0.0/24
+az network vnet subnet create --name myBackendSubnet --resource-group SensolockDev --vnet-name myVNet --address-prefix 10.21.1.0/24
+az network public-ip create --resource-group SensolockDev --name myAGPublicIPAddress --allocation-method Static --sku Standard
+
+
+address1=$(az network nic show --name myNic1 --resource-group myResourceGroupAG | grep "\"privateIPAddress\":" | grep -oE '[^ ]+$' | tr -d '",')
+address2=$(az network nic show --name myNic2 --resource-group myResourceGroupAG | grep "\"privateIPAddress\":" | grep -oE '[^ ]+$' | tr -d '",')
+az network application-gateway create --name sensolockagdev --location eastus --resource-group SensolockDev --capacity 2 --sku Standard_v2 --public-ip-address myAGPublicIPAddress --vnet-name myVNet --subnet myAGSubnet --priority 100
+
+
+az network public-ip create --resource-group MC_SensolockDev_sensolockaksdev_eastus --name sensolockpipdev --sku Standard --query publicIp.ipAddress -o tsv
+
+helm install ingress-nginx ingress-nginx/ingress-nginx -f helm/values.yml
+
+helm install ingress-nginx ingress-nginx/ingress-nginx -f helm/values.yml --set "controller\.service\.beta\.kubernetes\.io/azure-pip-name"=sensolockpipdev
+
+az network public-ip create --resource-group SensolockDev --name sensolockpipdev --sku Standard --allocation-method static
+
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx --set "controller\.service\.beta\.kubernetes\.io/azure-pip-name"=sensolockpipdev
+
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx  --set controller.service.loadBalancerIP=13.90.85.23

@@ -1,0 +1,21 @@
+services:
+  auth-server:
+    build: ./auth-server/
+    volumes:
+      - ./auth-server/:/usr/src/app/auth-server
+    ports:
+      - "3080:3080"
+    # env_file: ./auth-server/.env # TODO - uncomment this to auto-load your .env file!
+    environment:
+      - NODE_ENV=development
+  frontend:
+    build:
+      context: ./frontend/
+    volumes:
+      - ./frontend/:/usr/src/app/frontend
+    depends_on:
+      - auth-server
+    ports:
+      - "3000:3000"
+    env_file: ./frontend/.env # TODO - uncomment this to auto-load your .env file!
+    

@@ -1,0 +1,34 @@
+export class Customer {
+    CustomerID: number = 0
+    CustomerName: string = ''
+    CustomerTypeCode: string = ''
+    CustomerTypeDescription: string = ''
+    FirstName: string = ''
+    LastName: string = ''
+    Comments: string = ''
+    AccountBalance: number = 0
+    DOB: string = ''
+    DriverLicense: string = ''
+    Gender: string = ''
+    eMail: string = ''
+    Contact: string = ''
+    ContactPhoneNumber: string = ''
+    ProbationCounty: string = ''
+    ManddateState: string = ''
+    LicenseState: string = ''
+    TermMonths: number = 0
+    ProjectedEndDate: string = ''
+    ContractStartDate: string = ''
+    ContractEndDate: string = ''
+    PreferredInstalleState: string = ''
+    PreferredInstallCenterID: number = 0
+    PreferredInstallCenter: string = ''
+    AIMParticipantID: number = 0
+    VehMake: string = ''
+    VehModel: string = ''
+    VehYear: string = ''
+    VehVIN: string = ''
+    VehPlate: string = ''
+    AIMVehicleID: number = 0
+    HandHeldSerial: string = ''
+  }

@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "email": "nmcgover@test.com",
+      "password": "$2b$10$b.4h8sF7Ui.N2VXtU198VuZpgHi1UvwEEILGD8CiDDwxsDOQO/IOS"
+    },
+    {
+      "email": "kevin@sensolock.com",
+      "password": "$2b$10$k92b0qNuwaiFwmuAWFu9huKnNQuxc.lfiIvGTi/ErQzO3iNrrVQd2"
+    }
+  ]
+}
