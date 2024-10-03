@@ -1,4 +1,4 @@
-Sola Web App
+# Sola Web App
 
 I started this by following this [guide](https://clerk.com/blog/building-a-react-login-page-template) for a basic react app with a log in page until I decided I did not need to follow it anymore. I then decided somewhat late Sunday night to convert it to Typescript to enforce strong typing for easier to read code and avoid runtime errors. And because I wanted to learn it. In any case, it is a relatively short leap from that tutorial to what is in these folders.
 
@@ -62,7 +62,4 @@ To create an AKS instance and attach the ACR we just created and pushed images t
 az aks create --resource-group SensolockDev --name sensolockaksdev --node-count 2 --generate-ssh-keys --attach-acr sensolockacrdev
 ```
 
-## Creating Public IP on Azure
-```console
-az network public-ip create --resource-group SensolockDev --name sensolockpipev --sku Standard --allocation-method static --dns-name sensolock
-```
+## Everything after this point was chaos and will be documented at a later date

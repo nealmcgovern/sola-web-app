@@ -23,6 +23,7 @@ const Results = () => {
     const customers: Customer[] = useLocation().state?.customers
     const [open, setOpen] = React.useState(false);
     const [currCustomer, setCurrCustomer] = React.useState<Customer>(new Customer);
+    const [byPassCode, setBypassCode] = React.useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     
@@ -55,13 +56,13 @@ const Results = () => {
 
     return (
         <div className="mainContainer">
-            Search Results
+            <Typography>
+                Customer Vehicles
+            </Typography>
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                     <TableRow>
-                        <TableCell>Row ID</TableCell>
-                        <TableCell align="right">Customer ID</TableCell>
                         <TableCell align="right">Customer Name</TableCell>
                         <TableCell align="right">Customer DoB</TableCell>
                         <TableCell align="right">Vehicle Make</TableCell>
@@ -76,11 +77,9 @@ const Results = () => {
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         onClick={() => openModal(customer)}
                         >
-                        <TableCell component="th" scope="row">
-                            {index +1}
+                        <TableCell component="th" scope="row" align="right">
+                            {customer.CustomerName}
                         </TableCell>
-                        <TableCell align="right">{customer.CustomerID}</TableCell>
-                        <TableCell align="right">{customer.CustomerName}</TableCell>
                         <TableCell align="right">{customer.DOB}</TableCell>
                         <TableCell align="right">{customer.VehMake}</TableCell>
                         <TableCell align="right">{customer.VehModel}</TableCell>

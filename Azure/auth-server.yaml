@@ -1,54 +1,44 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe --file docker-compose.prod.yml convert
-    kompose.version: 1.32.0 (765fde254)
-  labels:
-    io.kompose.service: auth-server
-    app: auth-server
-  name: auth-server
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      io.kompose.service: auth-server
-      lbtype: external
-  template:
-    metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe --file docker-compose.prod.yml convert
-        kompose.version: 1.32.0 (765fde254)
-      labels:
-        io.kompose.network/sola-web-app-default: "true"
-        io.kompose.service: auth-server
-        lbtype: external
-        app: auth-server
-    spec:
-      containers:
-        - image: sensolockacrdev.azurecr.io/sola-web-app-auth-server:v3
-          name: auth-server
-          ports:
-            - containerPort: 3080
-              hostPort: 3080
-              name: "3080-port"
-              protocol: TCP
-      restartPolicy: Always
----
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe --file docker-compose.prod.yml convert
-    kompose.version: 1.32.0 (765fde254)
-  labels:
-    io.kompose.service: auth-server
   name: auth-server
+  labels:
+    app: auth-server
+    tier: auth-server
+    role: master
 spec:
   ports:
-    - name: "3080"
-      port: 3080
-      targetPort: 3080
-      name: "3080-port"
+  - port: 3080
+    targetPort: 3080
   selector:
-    io.kompose.service: auth-server
+    app: auth-server
+    tier: auth-server
+    role: master
+---
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
+kind: Deployment
+metadata:
+  name: auth-server
+spec:
+  selector:
+    matchLabels:
+      app: auth-server
+      role: master
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: auth-server
+        role: master
+        tier: auth-server
+    spec:
+      containers:
+      - name: master
+        image: interlockacrdev.azurecr.io/auth-server
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 3000
+

@@ -22,7 +22,7 @@ function App() {
     }
   
     // If the token exists, verify it with the auth server to see if it is valid
-    fetch(`http://sensolockdev.eastus.cloudapp.azure.com/auth-service/verify`, {
+    fetch(`${process.env.AUTH_SERVER_HOST}/auth-service/verify`, {
       method: 'POST',
       headers: {
         'jwt-token': user.token,

@@ -3,5 +3,4 @@ controller:
   replicaCount: 1
   service:
     annotations:
-      service.beta.kubernetes.io/azure-pip-name: sensolockpipdev
-      service.beta.kubernetes.io/azure-dns-label-name: sensolockdev
+      service.beta.kubernetes.io/azure-dns-label-name: interlockdev

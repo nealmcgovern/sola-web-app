@@ -23,7 +23,7 @@ const Search = (props: {
   const navigate = useNavigate()
 
   async function getMatchingCustomers(firstName: string, lastName: string) {
-    const response = await fetch(`http://sensolockdev.eastus.cloudapp.azure.com/auth-service/search`, {
+    const response = await fetch(`${process.env.AUTH_SERVER_HOST}/auth-service/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

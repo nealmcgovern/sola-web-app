@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: master
-        image: sensolockacrdev.azurecr.io/sola-web-app-frontend:v4
+        image: interlockacrdev.azurecr.io/frontend
         resources:
           requests:
             cpu: 100m

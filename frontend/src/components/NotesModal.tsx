@@ -3,6 +3,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import { useNavigate } from 'react-router-dom'
 import CloseIcon from '@mui/icons-material/Close';
 
 
@@ -24,12 +25,13 @@ const NotesModal = () => {
         pb: 3,
       };
 
+    const navigate = useNavigate()
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => {
       setOpen(true);
     };
     const handleClose = () => {
-      setOpen(false);
+      navigate('/search')
     };
   
     return (
@@ -39,20 +41,19 @@ const NotesModal = () => {
             variant="outlined"
             size='large'
             color='primary'>
-            Notes
+            End Call
         </Button>
         <Modal
           open={open}
-          onClose={handleClose}
           aria-labelledby="child-modal-title"
           aria-describedby="child-modal-description"
         >
           <Box sx={{ ...style }}>
-            <h2 id="child-modal-title">Log Notes</h2>
+            <h2 id="child-modal-title">Call Results</h2>
             <ButtonGroup variant="contained" aria-label="Basic button group">
-                <Button variant="outlined" size='small'>Code generation successful.</Button>
-                <Button variant="outlined" size='small'>Code generation unsuccessful, return call tomorrow.</Button>
-                <Button variant="outlined" size='small'>Other issue, return call tomorrow.</Button>
+                <Button onClick={handleClose} variant="outlined" size='small'>Code generation successful. </Button>
+                <Button onClick={handleClose} variant="outlined" size='small'>Code generation unsuccessful, return call tomorrow.</Button>
+                <Button onClick={handleClose} variant="outlined" size='small'>Other issue, return call tomorrow.</Button>
             </ButtonGroup>
           </Box>
         </Modal>

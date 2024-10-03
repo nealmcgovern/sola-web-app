@@ -69,7 +69,7 @@ const Login = (props: {
 
   // Call the server API to check if the given email ID already exists
 const checkAccountExists = (callback: (a: boolean) => void) => {
-  fetch(`http://sensolockdev.eastus.cloudapp.azure.com/auth-service/check-account`, {
+  fetch(`${process.env.AUTH_SERVER_HOST}/auth-service/check-account`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const checkAccountExists = (callback: (a: boolean) => void) => {
 
 // Log in a user using email and password
 const logIn = () => {
-  fetch(`http://sensolockdev.eastus.cloudapp.azure.com/auth-service/auth`, {
+  fetch(`${process.env.AUTH_SERVER_HOST}/auth-service/auth`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
